@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Threat Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f4f6f9;
+        }
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+        }
+        textarea, input[type="file"] {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            height: 180px;
+            padding: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        button {
+            
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .analyze-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #dcdfe3;
+        }
+        .analyze-btn:hover {
+            background: #eceff1;
+        }
+        .clear-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #dcdfe3;
+
+        
+        }
+        .clear-btn:hover {
+            background: #eceff1;
+        }
+        .delete-icon-stroke {
+    width: 18px;
+    height: 18px;
+    stroke: #dc3545;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+    flex-shrink: 0;
+}
+        .card {
+            background: #f8f9fa;
+            padding: 16px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        code {
+            background: #eef;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Email Threat Detector</h1>
+    <p>Paste email content and optionally upload an attachment to analyze suspicious links and file indicators.</p>
+
+    <form method="POST" enctype="multipart/form-data" id="scanForm">
+        <label><strong>Email Text:</strong></label>
+        <textarea id="email_text" name="email_text" placeholder="Paste email text here...">{{ email_text }}</textarea>
+
+        <label><strong>Attachment:</strong></label>
+        <input type="file" id="attachment" name="attachment">
+
+        <div class="button-group">
+            <button type="submit" class="analyze-btn">
+                <span class="icon">🔍</span>
+                Analyze
+            </button>
+
+            <button type="button" class="clear-btn" onclick="clearEmailForm()">
+    <svg class="delete-icon-stroke" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 3h6m-8 3h10m-9 0v13h8V6M10 10v6m4-6v6" />
+    </svg>
+    Delete
+</button>
+        </div>
+    </form>
+
+    {% if report %}
+    <div class="card">
+        <h2>Final Report</h2>
+        <p><strong>Total Score:</strong> {{ report.total_score }}</p>
+        <p><strong>Verdict:</strong> {{ report.verdict }}</p>
+
+        <h3>Reasons</h3>
+        <ul>
+            {% for reason in report.reasons %}
+                <li>{{ reason }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if url_results %}
+    <div class="card">
+        <h2>URL Analysis</h2>
+        {% for item in url_results %}
+            <div style="margin-bottom: 16px;">
+                <p><strong>URL:</strong> <code>{{ item.url }}</code></p>
+                <p><strong>Score:</strong> {{ item.score }}</p>
+                <p><strong>Verdict:</strong> {{ item.verdict }}</p>
+                <ul>
+                    {% for reason in item.reasons %}
+                        <li>{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if file_result %}
+    <div class="card">
+        <h2>Attachment Analysis</h2>
+        <p><strong>Filename:</strong> {{ file_result.filename }}</p>
+        <p><strong>Score:</strong> {{ file_result.score }}</p>
+        <p><strong>Verdict:</strong> {{ file_result.verdict }}</p>
+
+        {% if file_result.sha256 %}
+            <p><strong>SHA256:</strong> <code>{{ file_result.sha256 }}</code></p>
+        {% endif %}
+
+        {% if file_result.size_bytes %}
+            <p><strong>File Size:</strong> {{ file_result.size_bytes }} bytes</p>
+        {% endif %}
+
+        <ul>
+            {% for reason in file_result.reasons %}
+                <li>{{ reason }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function clearEmailForm() {
+        window.location.href = "/";
+    }
+</script>
+</body>
+</html>
