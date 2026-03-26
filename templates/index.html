@@ -161,11 +161,49 @@
             <p><strong>File Size:</strong> {{ file_result.size_bytes }} bytes</p>
         {% endif %}
 
+        {% if file_result.name_based_mime %}
+            <p><strong>Name-based MIME:</strong> {{ file_result.name_based_mime }}</p>
+        {% endif %}
+
+        {% if file_result.detected_mime %}
+            <p><strong>Detected MIME:</strong> {{ file_result.detected_mime }}</p>
+        {% endif %}
+
+        {% if file_result.detected_extension %}
+            <p><strong>Detected File Type:</strong> {{ file_result.detected_extension }}</p>
+        {% endif %}
+
         <ul>
             {% for reason in file_result.reasons %}
                 <li>{{ reason }}</li>
             {% endfor %}
         </ul>
+    </div>
+    {% endif %}
+
+    {% if recent_scans %}
+    <div class="card">
+        <h2>Recent Scan History</h2>
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Time</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Filename</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Score</th>
+                    <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in recent_scans %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ scan.scanned_at }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ scan.filename or "No file" }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ scan.total_score }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ scan.verdict }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     {% endif %}
 </div>
